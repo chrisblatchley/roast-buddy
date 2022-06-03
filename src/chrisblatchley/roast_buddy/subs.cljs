@@ -3,6 +3,6 @@
      [re-frame.core :as re-frame]))
 
 (re-frame/reg-sub
- ::name
+ ::current-roast
  (fn [db]
-   (:name db)))
+   (:current-roast db)))
