@@ -2,15 +2,16 @@
     (:require
      [re-frame.core :as re-frame]
      [chrisblatchley.roast-buddy.subs :as subs]
+     [chrisblatchley.roast-buddy.roasts :as roasts]
      ))
 
 (defn past-roasts []
-  [:section
-   [:h2 "my roasts"
-    [:ul
-     [:li "ethiopia guji"]
-     [:li "colombia san rafael"]
-     [:li "kenya kerogi AA"]]]])
+  (let [roasts (re-frame/subscribe [::subs/roasts])]
+    [:section
+     [:h2 "my roasts"
+      (if (empty? @roasts)
+        [:h3 "nothing yet!"]
+        [:ul (map (fn [{:keys [name]}] [:li name]) @roasts)])]]))
 
 (defn- data-rows
   [{:keys [data]}]
@@ -22,14 +23,15 @@
 
 (defn current-roast []
   (let [roast (re-frame/subscribe [::subs/current-roast])
-        temp-value (atom 0)]
+        temp-value (atom 0)
+        roast-name (atom "")]
     [:section
      [:h2 "current roast: "
       [:input {:type "text"
-               :on-change #(re-frame/dispatch [:roast-name (-> % .-target .-value)])}]]
-     [:h3 (if (nil? (:started-at @roast))
-            [:button {:on-click #(re-frame/dispatch [:start-roast :started])} "begin"]
-            (str "started at: " (:started-at @roast)))]
+               :on-change #(reset! roast-name (-> % .-target .-value))}]]
+     [:h3 (if (roasts/roasting? @roast)
+            [:button {:on-click #(re-frame/dispatch [:finish-roast :done])} "stop"]
+            [:button {:on-click #(re-frame/dispatch [:start-roast @roast-name])} "start"])]
      [:table
       [:tr
        [:th "time"]

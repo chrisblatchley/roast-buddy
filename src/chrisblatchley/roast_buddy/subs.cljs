@@ -6,3 +6,8 @@
  ::current-roast
  (fn [db]
    (:current-roast db)))
+
+(re-frame/reg-sub
+ ::roasts
+ (fn [db]
+   (:roasts db)))

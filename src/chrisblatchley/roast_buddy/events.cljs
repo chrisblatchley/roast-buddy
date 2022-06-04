@@ -1,7 +1,8 @@
 (ns chrisblatchley.roast-buddy.events
   (:require
    [re-frame.core :as re-frame]
-   [chrisblatchley.roast-buddy.db :as db]))
+   [chrisblatchley.roast-buddy.db :as db]
+   [chrisblatchley.roast-buddy.roasts :as roasts]))
 
 (re-frame/reg-event-db
  ::initialize-db
@@ -9,20 +10,21 @@
    db/default-db))
 
 (re-frame/reg-event-db
- :roast-name
- (fn [db [_ name]]
-   (assoc-in db [:current-roast :name] name)))
-
-(re-frame/reg-event-db
  :record-temp
  (fn [db [_ temp]]
-   (let [time (get-in db [:current-roast :started-at])
-         prev (last (get-in db [:current-roast :data]))]
-     (update-in db [:current-roast :data] conj {:time (/ (- (.now js/Date) time) 1000)
-                                                :temp temp
-                                                :ror (- temp (:temp prev))}))))
+   (update-in db [:current-roast] #(roasts/record-temp % temp))))
 
 (re-frame/reg-event-db
  :start-roast
+ (fn [db [_ name]]
+   (let [new-roast (roasts/create-roast name)]
+     (-> db
+         (assoc :current-roast new-roast)))))
+
+(re-frame/reg-event-db
+ :finish-roast
  (fn [db [_ _]]
-   (assoc-in db [:current-roast :started-at] (js/Date.))))
+   (let [finished-roast (roasts/finish-roast (:current-roast db))]
+     (-> db
+         (update-in [:roasts] conj finished-roast)
+         (update-in [:current-roast] finished-roast)))))
