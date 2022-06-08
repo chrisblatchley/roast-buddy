@@ -20,3 +20,6 @@
 
 # calva
 /.calva
+
+# lsp
+/.lsp/
