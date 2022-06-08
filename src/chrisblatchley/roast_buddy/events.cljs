@@ -10,9 +10,14 @@
    db/default-db))
 
 (re-frame/reg-event-db
- :record-temp
- (fn [db [_ temp]]
-   (update-in db [:current-roast] #(roasts/record-temp % temp))))
+ :new-roast
+ (fn [db _]
+   (assoc db :current-roast (roasts/create-roast "default"))))
+
+(re-frame/reg-event-db
+ :load-roast
+ (fn [db [_ roast]]
+   (assoc db :current-roast roast)))
 
 (re-frame/reg-event-db
  :start-roast
@@ -20,6 +25,16 @@
    (let [new-roast (roasts/create-roast name)]
      (-> db
          (assoc :current-roast new-roast)))))
+
+(re-frame/reg-event-db
+ :update-name
+ (fn [db [_ name]]
+   (assoc-in db [:current-roast :name] name)))
+
+(re-frame/reg-event-db
+ :record-temp
+ (fn [db [_ temp]]
+   (update-in db [:current-roast] #(roasts/record-temp % temp))))
 
 (re-frame/reg-event-db
  :finish-roast

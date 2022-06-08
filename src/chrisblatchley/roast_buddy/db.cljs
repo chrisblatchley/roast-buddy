@@ -2,4 +2,4 @@
 
 (def default-db
   {:roasts []
-   :current-roast {}})
+   :current-roast {:name "default"}})

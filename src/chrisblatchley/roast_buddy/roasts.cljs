@@ -21,6 +21,13 @@
   (and (not (nil? (:started-at roast)))
        (nil? (:finished-at roast))))
 
+(defn status
+  [roast]
+  (cond
+    (not (nil? (:finished-at roast))) :finished
+    (not (nil? (:started-at roast))) :started
+    :else :ready))
+
 (defn finish-roast
   [roast]
   (assoc roast :finished-at (js/Date.)))
